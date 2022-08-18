@@ -4,6 +4,7 @@
 #include "ShootXCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AShootXCharacter::AShootXCharacter()
 {
@@ -18,7 +19,8 @@ AShootXCharacter::AShootXCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void AShootXCharacter::BeginPlay()
