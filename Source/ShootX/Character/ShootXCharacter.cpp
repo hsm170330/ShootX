@@ -8,6 +8,7 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "ShootX/Weapon/Weapon.h"
+#include "ShootX/ShootXComponents/CombatComponent.h"
 
 AShootXCharacter::AShootXCharacter()
 {
@@ -27,6 +28,9 @@ AShootXCharacter::AShootXCharacter()
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
+
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true);
 }
 
 void AShootXCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -57,9 +61,18 @@ void AShootXCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("MoveRight", this, &AShootXCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &AShootXCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &AShootXCharacter::LookUp);
+
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &AShootXCharacter::EquipButtonPressed);
 }
 
-
+void AShootXCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (Combat)
+	{
+		Combat->Character = this;
+	}
+}
 
 void AShootXCharacter::MoveForward(float Value) 
 {
@@ -89,6 +102,29 @@ void AShootXCharacter::Turn(float Value)
 void AShootXCharacter::LookUp(float Value)
 {
 	AddControllerPitchInput(Value);
+}
+
+void AShootXCharacter::EquipButtonPressed()
+{
+	if (Combat)
+	{
+		if (HasAuthority())
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed();
+		}
+	}
+}
+
+void AShootXCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
 }
 
 void AShootXCharacter::SetOverlappingWeapon(AWeapon* Weapon)
