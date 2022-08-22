@@ -29,6 +29,8 @@ void UShootXAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	bIsInAir = ShootXCharacter->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = ShootXCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
-
+	bWeaponEquipped = ShootXCharacter->IsWeaponEquipped();
+	bIsCrouched = ShootXCharacter->bIsCrouched;
+	bAiming = ShootXCharacter->IsAiming();
 
 }
